@@ -46,8 +46,8 @@ async def server(ctx):  #server info and stuff
                     inline=False)
     await ctx.send(embed=embed)
 
-
-@bot.command()  #calculator
+#calculator
+@bot.command()  
 async def calculate(ctx, *nums):
     operation = " + ".join(nums)
     await ctx.send(f'{operation} = {eval(operation)}')
@@ -67,7 +67,7 @@ async def calculate(ctx, *nums):
     operation = " / ".join(nums)
     await ctx.send(f'{operation} = {eval(operation)}')
 
-
+#percentage calculations
 @bot.command()
 async def percentof(ctx, a: int, b: int):
     c = (a / 100) * b
@@ -85,6 +85,7 @@ async def hypotenuse(ctx, a: float, b: float):
     c = (a * a) + (b * b)
     await ctx.send(f'{math.sqrt(c)} is the hypotenuse of {a} and {b}')
 
+#percentage to fraction to decimal converter
 @bot.command()
 async def convert(ctx, args, a: float, b: Optional[int] = 5):
     ftod = a/b
