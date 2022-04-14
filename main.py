@@ -13,11 +13,11 @@ bot = commands.Bot(command_prefix="=")
 async def on_command_error(ctx, error):
     await ctx.send(f"An error occured: {str(error)}")
     print(f"An error occured: {str(error)}")
-
+#bot is online
 @bot.event
 async def on_ready():
-    print(f"Ready!\nUsername: {bot.user}")  #bot is online
-
+    print(f"Ready!\nUsername: {bot.user}")
+    await bot.change_presence(activity=discord.Game(name="Minecraft"))
 
 @bot.command()
 async def ping(ctx):  #ping
