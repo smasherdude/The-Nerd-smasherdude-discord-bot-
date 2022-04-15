@@ -5,9 +5,10 @@ from fractions import Fraction
 import math
 from typing import Optional
 from discord.ext import tasks
-import asyncio
 
 bot = commands.Bot(command_prefix="=")
+#removes the default help
+bot.remove_command('help')
 
 
 @bot.event
@@ -21,6 +22,30 @@ async def on_command_error(ctx, error):
 async def on_ready():
     print(f"Ready!\nUsername: {bot.user}")
     await bot.change_presence(activity=discord.Game(name="Minecraft"))
+
+
+#lists all possible commands
+@bot.command(name="commands", description="Returns all commands available")
+async def commands(ctx):
+    helptext = "```"
+    for command in bot.commands:
+        helptext += f"{command}\n"
+    helptext += "```"
+    await ctx.send(helptext)
+
+@bot.command()
+async def help(ctx):
+    embed = discord.Embed(
+        title="Help and commands",
+        url=
+        "https://github.com/smasherdude/The-Nerd-smasherdude-discord-bot-/wiki",
+        description="These are all the commands you could do. A more in depth guide will be on our wiki page",
+        color=0x2316d4)
+    embed.add_field(name="Math Commands",
+                    value="=calculate <the problem> \n=percentof <percentage> <number> \n=ispercentof <number1> <number2> \n=hypotenuse <side1> <side2> \n=convert <conversion type> <number1> <number2 fractions only> \n=unitconvert <conversion type> <number> ",
+                    inline=False)
+    await ctx.send(embed=embed)
+
 
 
 @bot.command()
@@ -115,6 +140,38 @@ async def convert(ctx, args, a: float, b: Optional[int] = 5):
         await ctx.send(f'{a}/{b} is {ftop}%')
     else:
         await ctx.send('an error has occured')
+
+
+#conversion between units
+@bot.command()
+async def unitconvert(ctx, args, a: float):
+    mtokm = a / 1000
+    kmtom = a * 1000
+    cmtom = a / 100
+    mtocm = a * 100
+    cmtokm = a / 100000
+    kmtocm = a * 100000
+    ctof = (a * 9 / 5) + 32
+    ftoc = (a - 32) * 5 / 9
+    if args == 'mtokm':
+        await ctx.send(f'{a}m is converted to {mtokm}km')
+    elif args == 'kmtom':
+        await ctx.send(f'{a}km is converted to {kmtom}m')
+    elif args == 'cmtom':
+        await ctx.send(f'{a}cm is converted to {cmtom}m')
+    elif args == 'mtocm':
+        await ctx.send(f'{a}m is converted to {mtocm}cm')
+    elif args == 'cmtokm':
+        await ctx.send(f'{a}cm is converted to {cmtokm}km')
+    elif args == 'kmtocm':
+        await ctx.send(f'{a}km is converted to {kmtocm}cm')
+    elif args == 'ctof':
+        await ctx.send(f'{a}c is converted to {ctof}f')
+    elif args == 'ftoc':
+        await ctx.send(f'{a}f is converted to {ftoc}c')
+    else:
+        await ctx.send('an error has occured')
+
 
 token = os.environ['TOKEN']
 bot.run(token)
