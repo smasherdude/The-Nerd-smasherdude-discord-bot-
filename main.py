@@ -33,19 +33,22 @@ async def commands(ctx):
     helptext += "```"
     await ctx.send(helptext)
 
+
 @bot.command()
 async def help(ctx):
     embed = discord.Embed(
         title="Help and commands",
         url=
         "https://github.com/smasherdude/The-Nerd-smasherdude-discord-bot-/wiki",
-        description="These are all the commands you could do. A more in depth guide will be on our wiki page",
+        description=
+        "These are all the commands you could do. A more in depth guide will be on our wiki page",
         color=0x2316d4)
-    embed.add_field(name="Math Commands",
-                    value="=calculate <the problem> \n=percentof <percentage> <number> \n=ispercentof <number1> <number2> \n=hypotenuse <side1> <side2> \n=convert <conversion type> <number1> <number2 fractions only> \n=unitconvert <conversion type> <number> ",
-                    inline=False)
+    embed.add_field(
+        name="Math Commands",
+        value=
+        "=calculate <the problem> \n=percentof <percentage> <number> \n=ispercentof <number1> <number2> \n=hypotenuse <side1> <side2> \n=convert <conversion type> <number1> <number2 fractions only> \n=unitconvert <conversion type> <number> ",
+        inline=False)
     await ctx.send(embed=embed)
-
 
 
 @bot.command()
