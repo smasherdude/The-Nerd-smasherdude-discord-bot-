@@ -5,6 +5,7 @@ from fractions import Fraction
 import math
 from typing import Optional
 from discord.ext import tasks
+from webserver import keep_alive
 
 bot = commands.Bot(command_prefix="=")
 #removes the default help
@@ -176,5 +177,6 @@ async def unitconvert(ctx, args, a: float):
         await ctx.send('an error has occured')
 
 
+keep_alive()
 token = os.environ['TOKEN']
 bot.run(token)
