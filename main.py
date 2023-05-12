@@ -6,65 +6,60 @@ import math
 from typing import Optional
 from discord.ext import tasks
 from webserver import keep_alive
-
-bot = commands.Bot(command_prefix="=")
-#removes the default help
-bot.remove_command('help')
+from discord import app_commands
+from discord.app_commands import Choice
 
 
-@bot.event
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
+
+@client.event
 async def on_command_error(ctx, error):
     await ctx.send(f"An error occured: {str(error)}")
     print(f"An error occured: {str(error)}")
 
 
 #bot is online
-@bot.event
+@client.event
 async def on_ready():
-    print(f"Ready!\nUsername: {bot.user}")
-    await bot.change_presence(activity=discord.Game(name="Minecraft"))
+  await tree.sync()
+  print(f"Ready!\nUsername: {client.user}")
+  await client.change_presence(activity=discord.Game(name="Minecraft"))
+  
+#these first two commands are the test commands
+@tree.command(name = "test", description = "My first application Command") #Add the guild ids in which the slash command will appear. If it should be in all, remove the argument, but note that it will take some time (up to an hour) to register the command if it's for all guilds.
+async def first_command(interaction: discord.Interaction, number: int, string: str):
+    await interaction.response.send_message(f'{number=} {string=}')
 
+@tree.command(name = "test2", description = "test123")
+@app_commands.describe(number='The file to upload', number2='number2')
+async def upload(interaction: discord.Interaction, number: int, number2: int):
+    await interaction.response.send_message(f'Test successful {number}!', ephemeral=True)
 
-#lists all possible commands
-@bot.command(name="commands", description="Returns all commands available")
-async def commands(ctx):
-    helptext = "```"
-    for command in bot.commands:
-        helptext += f"{command}\n"
-    helptext += "```"
-    await ctx.send(helptext)
+#these are the imported commands from the previous version
 
-
-@bot.command()
-async def help(ctx):
+@tree.command(name = "help", description = "Help")
+async def help(interaction):
     embed = discord.Embed(
         title="Help and commands",
         url=
         "https://github.com/smasherdude/The-Nerd-smasherdude-discord-bot-/wiki",
         description=
-        "These are all the commands you could do. A more in depth guide will be on our wiki page",
+        "Check out our wiki page for more information",
         color=0x2316d4)
-    embed.add_field(
-        name="Math Commands",
-        value=
-        "=calculate <the problem> \n=percentof <percentage> <number> \n=ispercentof <number1> <number2> \n=hypotenuse <side1> <side2> \n=convert <conversion type> <number1> <number2 fractions only> \n=unitconvert <conversion type> <number> ",
-        inline=False)
-    await ctx.send(embed=embed)
+    await interaction.response.send_message(embed=embed)
 
+@tree.command(name = "ping", description = "Shows bot latency")
+async def ping(interaction):  #ping
+    latency = round(client.latency * 1000, 2)
+    await interaction.response.send_message(f"{latency} ms")
 
-@bot.command()
-async def ping(ctx):  #ping
-    latency = round(bot.latency * 1000, 2)
-    await ctx.send(f"{latency} ms")
-
-
-@bot.command()
-async def test(ctx):  #random test that i should delete soon
-    await ctx.send("Test successful")
-
-
-@bot.command()
-async def server(ctx):  #server info and stuff
+@tree.command(name = "server", description = "My minecraft server")
+async def server(interaction):  #server info and stuff
     embed = discord.Embed(
         title="Minecraft Server",
         url=
@@ -77,106 +72,28 @@ async def server(ctx):  #server info and stuff
     embed.add_field(name="Version",
                     value="1.17.1 on Java and the current version of Bedrock",
                     inline=False)
-    await ctx.send(embed=embed)
-
+    await interaction.response.send_message(embed=embed)
 
 #calculator
-@bot.command()
-async def calculate(ctx, *nums):
-    operation = " + ".join(nums)
-    await ctx.send(f'{operation} = {eval(operation)}')
+@tree.command(name = "calculate", description = "Calculate with some basic arithmetic")
+async def calc(interaction, operation:str):
+  await interaction.response.send_message(f'{operation} = {eval(operation)}')
 
-
-async def calculate(ctx, *nums):
-    operation = " - ".join(nums)
-    await ctx.send(f'{operation} = {eval(operation)}')
-
-
-async def calculate(ctx, *nums):
-    operation = " * ".join(nums)
-    await ctx.send(f'{operation} = {eval(operation)}')
-
-
-async def calculate(ctx, *nums):
-    operation = " / ".join(nums)
-    await ctx.send(f'{operation} = {eval(operation)}')
-
-
-#percentage calculations
-@bot.command()
-async def percentof(ctx, a: int, b: int):
-    c = (a / 100) * b
-    await ctx.send(f'{a}% of {b} = {c}')
-
-
-@bot.command()
-async def ispercentof(ctx, a: int, b: int):
-    c = (a / b) * 100
-    await ctx.send(f'{a} is {c}% of {b}')
-
-
-@bot.command()
-async def hypotenuse(ctx, a: float, b: float):
-    c = (a * a) + (b * b)
-    await ctx.send(f'{math.sqrt(c)} is the hypotenuse of {a} and {b}')
-
-
-#percentage to fraction to decimal converter
-@bot.command()
-async def convert(ctx, args, a: float, b: Optional[int] = 5):
-    ftod = a / b
-    dtof = Fraction(a)
-    dtop = a * 100
-    ptod = a / 100
-    ptof = Fraction(a / 100)
-    ftop = (a / b) * 100
-    if args == 'ftod':
-        await ctx.send(f'{a}/{b} is converted to {ftod}')
-    elif args == 'dtof':
-        await ctx.send(f'{a} is {dtof}')
-    elif args == 'dtop':
-        await ctx.send(f'{a} is {dtop}%')
-    elif args == 'ptod':
-        await ctx.send(f'{a}% is {ptod}')
-    elif args == 'ptof':
-        await ctx.send(f'{a}% is {ptof}')
-    elif args == 'ftop':
-        await ctx.send(f'{a}/{b} is {ftop}%')
-    else:
-        await ctx.send('an error has occured')
-
-
-#conversion between units
-@bot.command()
-async def unitconvert(ctx, args, a: float):
-    mtokm = a / 1000
-    kmtom = a * 1000
-    cmtom = a / 100
-    mtocm = a * 100
-    cmtokm = a / 100000
-    kmtocm = a * 100000
-    ctof = (a * 9 / 5) + 32
-    ftoc = (a - 32) * 5 / 9
-    if args == 'mtokm':
-        await ctx.send(f'{a}m is converted to {mtokm}km')
-    elif args == 'kmtom':
-        await ctx.send(f'{a}km is converted to {kmtom}m')
-    elif args == 'cmtom':
-        await ctx.send(f'{a}cm is converted to {cmtom}m')
-    elif args == 'mtocm':
-        await ctx.send(f'{a}m is converted to {mtocm}cm')
-    elif args == 'cmtokm':
-        await ctx.send(f'{a}cm is converted to {cmtokm}km')
-    elif args == 'kmtocm':
-        await ctx.send(f'{a}km is converted to {kmtocm}cm')
-    elif args == 'ctof':
-        await ctx.send(f'{a}c is converted to {ctof}f')
-    elif args == 'ftoc':
-        await ctx.send(f'{a}f is converted to {ftoc}c')
-    else:
-        await ctx.send('an error has occured')
+@tree.command(name = "percentagecalculator", description = "Calculates Percentages")
+@app_commands.describe(name="Operation")
+@app_commands.choices(name=[
+        Choice(name = "percentof", value = "c"),
+        Choice(name = "ispercentof", value = "d")
+    ])
+async def testing(interaction: discord.Interaction, num1:int, name: str, num2:int):
+  c = (num1 / 100) * num2
+  d = (num1 * num1) + (num2 * num2)
+  if name == 'c':
+    await interaction.response.send_message(f'{num1}% of {num2} = {c}')
+  else:
+    await interaction.response.send_message(f'{num1} is {d}% of {num2}')
 
 
 keep_alive()
 token = os.environ['TOKEN']
-bot.run(token)
+client.run(token)
